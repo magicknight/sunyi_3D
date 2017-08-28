@@ -2,6 +2,7 @@
 import sys
 from pprint import pprint
 
+time_interval = 50
 
 def discard(file):
     """
@@ -61,8 +62,8 @@ def scope(file):
             else:
                 data[module_name] = module_body
             keys.update(module_keys)
-        # if line.startswith('$enddefinitions'):
-        if line.startswith('$dumpvars'):
+        if line.startswith('$enddefinitions'):
+            # if line.startswith('$dumpvars'):
             return data, keys
 
 
@@ -73,17 +74,52 @@ def read_var(file, keys):
     :param keys:
     :return:
     """
+    hits = 0
+    end_time = time_interval
+    while True:
+        time_keys, time_hits, will_continue = time_var(file, keys, end_time)
+        if time_hits > hits:
+            for a_key in keys.keys():
+                keys[a_key]['value'] = time_keys[a_key]
+            print('time', end_time - time_interval, '-', end_time, 'has total hits', time_hits, ', larger than', hits)
+            hits = time_hits
+        if not will_continue:
+            return keys
+        end_time += time_interval
+
+
+def time_var(file, all_key, end_time):
+    """
+    读取每个时间段并返回 dictionary
+    :param file:
+    :param all_key: all the key
+    :param end_time: the time to end this count
+    :return: {key: value}, total_hit, if_continue?
+    """
+    keys = dict.fromkeys(all_key, 0)
+    total_hit = 0
     while True:
         line = file.readline()
+        previous = file.tell()
         if not line:
-            return keys
-        if line.startswith('#') or line.startswith('$end'):
+            return keys, total_hit, False
+        if line.startswith('$end') or line.startswith('$dumpvars'):
             continue
+        if line.startswith('#'):
+            time = int(line[1:])
+            if time > end_time:
+                file.seek(previous)
+                return keys, total_hit, True
+            else:
+                continue
         temp = line.split()
+        if not temp:
+            continue
         if len(temp) > 1:
             line = temp[1]
         label = line[1:].rstrip()
-        keys[label]['value'] += 1
+        keys[label] += 1
+        total_hit += 1
         # print(label, keys[label])
 
 
