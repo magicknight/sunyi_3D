@@ -28,7 +28,7 @@ if __name__ == '__main__':
                 routine_2.setdefault(another_key, {'name': routine_1[another_key]['name'], 'value': 0})
             data_diff[a_key][another_key] = {'name': routine_2[another_key]['name'],
                                              'value': routine_1[another_key]['value'] - routine_2[another_key]['value']}
-    print('number of 2nd level keys:', len(first_level_keys))
+    print('number of 2nd level keys:', number_of_second_level_keys)
     with open('diff.txt', 'w') as f:
         pprint(data_diff, f)
 
