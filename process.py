@@ -127,7 +127,7 @@ if __name__ == '__main__':
     with open(sys.argv[1]) as f:
         discard(f)
         my_module, my_keys = scope(f)
-        print('====================================================')
+        # print('====================================================')
         # pprint(my_module)
         # pprint(my_keys)
         my_keys = read_var(f, my_keys)
@@ -139,7 +139,6 @@ if __name__ == '__main__':
             # print(each_key['1st'], my_module[each_key['1st']])
             my_module[each_key['1st']][each_key['2nd']]['value'] = each_key['value']
         # pprint(my_module)
-
     with open('keys.txt', 'w') as f:
         pprint(my_keys, f)
     with open('module.txt', 'w') as f:
