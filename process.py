@@ -2,7 +2,10 @@
 import sys
 from pprint import pprint
 
+time_begin = 0
 time_interval = 50
+file_path = ''
+
 
 def discard(file):
     """
@@ -16,6 +19,23 @@ def discard(file):
         if line.startswith('$scope'):
             file.seek(previous)
             return
+
+
+def discard_time(file, end_time):
+    """
+    抛弃开始时间前面的额行
+    :param file:
+    :param end_time:
+    :return:
+    """
+    while True:
+        previous = file.tell()
+        line = file.readline()
+        if line.startswith('#'):
+            time = int(line[1:])
+            if time > end_time:
+                file.seek(previous)
+                return True
 
 
 def create_module(file, a_line):
@@ -74,6 +94,7 @@ def read_var(file, keys):
     :param keys:
     :return:
     """
+    discard_time(file, time_begin)
     hits = 0
     end_time = time_interval
     while True:
@@ -124,7 +145,13 @@ def time_var(file, all_key, end_time):
 
 
 if __name__ == '__main__':
-    with open(sys.argv[1]) as f:
+    if len(sys.argv) == 4:
+        time_begin = int(sys.argv[1])
+        time_interval = int(sys.argv[2])
+        file_path = sys.argv[3]
+    else:
+        file_path = sys.argv[1]
+    with open(file_path) as f:
         discard(f)
         my_module, my_keys = scope(f)
         # print('====================================================')
